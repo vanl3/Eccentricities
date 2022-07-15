@@ -126,7 +126,7 @@ real ComputeInnerMass(real r) {
 	if(Ymed(j)<r) {
 	  mass+=rho[l]*Vol(j,k);
 	}
-      }	
+      }
     }
   }
 #ifdef FLOAT
@@ -150,14 +150,14 @@ PlanetarySystem *InitPlanetarySystem (char *filename) {
   real summass=0.0;
   real e_bin, a_bin, period_bin;
   int status;
-  
+
   if (ThereArePlanets == NO) {
     sys = AllocPlanetSystem (1);
     sys->nb = 0;
     sys->x = sys->vx = sys->y = sys->vy = NULL;
     return sys;
   }
-  
+
   nb = FindNumberOfPlanets (filename);
   if (CPU_Master) {
     if(nb > 1) printf  ("%d planets found.\n", nb);
@@ -392,7 +392,7 @@ real GetPsysInfo (boolean action) {
   }
 
   switch (action) {
-  case MARK: 
+  case MARK:
     X_planet = xc;
     Y_planet = yc;
     return 0.;

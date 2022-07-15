@@ -12,6 +12,13 @@
 #define GAS 1
 #define DUST 2
 
+///define math function
+// #define _USE_MATH_DEFINES
+// #include <math.h>
+// #include <cmath>
+// #include <iostream>
+///
+
 #define Input 0
 #define Output 1
 
@@ -97,7 +104,7 @@
 #define VZTEMP 8192L
 
 /////////////////////////////////////////////////////
-//Definitions relative to Fine Grain Monitoring 
+//Definitions relative to Fine Grain Monitoring
 #define MONITORSCALAR (MONITOR_SCALAR+0)
 #define MONITOR2D     (MONITOR_2D+0)
 #define MONITORY      (MONITOR_Y+0)
@@ -500,7 +507,7 @@ the first call of the function to be debugged. If your initial
 conditions are too symmetric or regular, you may miss a bug and have
 false-negatives. It is therefore advised that you introduce some noise
 in the initial conditions of the setup that is used to run the code in
-this debugging mode. There is a variable NOISE that defaults to 0. 
+this debugging mode. There is a variable NOISE that defaults to 0.
 */
 
 /* The fields produced by the CPU function are all written in files

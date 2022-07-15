@@ -8,7 +8,7 @@ void VanLeerX(Field *Density, Field *DensStar, Field *Vx_t, real dt) {
 }
 
 
-void TransportX(Field *Q, Field *Qs, Field *Vx_t, real dt) { 
+void TransportX(Field *Q, Field *Qs, Field *Vx_t, real dt) {
   if (Q != Density){
      FARGO_SAFE(DivideByRho(Q));
      __VanLeerX(DivRho, Qs, Vx_t, dt);
@@ -43,7 +43,7 @@ void TransportZ(Field *Q, Field *Qs, real dt) {
 void X_advection (Field *Vx_t, real dt) {
 #ifdef X
   __VanLeerX(Density, DensStar, Vx_t, dt);
-  TransportX(Mpx, Qs, Vx_t, dt);
+  TransportX(Mpx, Qs, Vx_t, dt);    ///called
   TransportX(Mmx, Qs, Vx_t, dt);
 #endif
 #ifdef Y
@@ -97,7 +97,7 @@ void transport(real dt){
   FARGO_SAFE(VanLeerY_a(Density));
   FARGO_SAFE(VanLeerY_b(dt, Density, DensStar));
 
-#ifdef X  
+#ifdef X
   TransportY(Mpx, Qs, dt);
   TransportY(Mmx, Qs, dt);
 #endif
@@ -143,7 +143,7 @@ void transport(real dt){
   AdvectSHIFT(Density, Nshift);
 #endif
 #endif
-  
+
   FARGO_SAFE(NewVelocity_x());
   FARGO_SAFE(NewVelocity_y());
   FARGO_SAFE(NewVelocity_z());

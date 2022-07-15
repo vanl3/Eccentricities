@@ -13,15 +13,16 @@ void SubStep1_x_cpu (real dt) {       ///void f(P) - Return value is absent, why
 //<USER_DEFINED>
   INPUT(Pressure);
   INPUT(Density);
-  INPUT(Pot);               ///Pot: Potential
+  INPUT(Pot);               ///what is Pot? Potential?
   INPUT(Vx);
+  INPUT(Torque);
 #ifdef MHD
 #if defined (CYLINDRICAL) || defined (SPHERICAL)
-  INPUT(Bx);              ///Bx magnetic field
+  INPUT(Bx);
 #endif
   INPUT(By);
   INPUT(Bz);
-#endif                    ///GPU code is not written in c but in cuda, CPU was written in c
+#endif
   OUTPUT(Vx_temp);        ///why only output Vx_temp?
 //<\USER_DEFINED>
 
@@ -29,9 +30,10 @@ void SubStep1_x_cpu (real dt) {       ///void f(P) - Return value is absent, why
   real* p   = Pressure->field_cpu;
   real* pot = Pot->field_cpu;
   real* rho = Density->field_cpu;
+  real* toq = Torque->field_cpu;
 #ifdef X
   real* vx      = Vx->field_cpu;
-  real* vx_temp = Vx_temp->field_cpu;     ///why velocity has temperary
+  real* vx_temp = Vx_temp->field_cpu;     ///why velocity has temperature?
 #endif
 #ifdef MHD
   real* bx = Bx->field_cpu;
@@ -45,9 +47,14 @@ void SubStep1_x_cpu (real dt) {       ///void f(P) - Return value is absent, why
   int size_z = Nz+2*NGHZ-1;
   real dx = Dx;
   int fluidtype = Fluidtype;
+  ///do we have to redefine omegaframe in here?
+  real omega;     ///or real omega;?
 //<\EXTERNAL>
 
 //<INTERNAL>
+  ///input radius here?
+  real radius;
+  ///
   int i; //Variables reserved
   int j; //for the topology
   int k; //of the kernels
@@ -110,6 +117,13 @@ void SubStep1_x_cpu (real dt) {       ///void f(P) - Return value is absent, why
 	  dtOVERrhom*(p[ll]-p[llxm])/zone_size_x(j,k);
 #ifdef POTENTIAL
 	vx_temp[ll] -= (pot[ll]-pot[llxm])*dt/zone_size_x(j,k);
+#endif
+
+///the 5th term of tourque Density
+#ifndef TORQUE
+  omega = sqrt(G*MSTAR/(ymed(j)*ymed(j)*ymed(j)));
+  radius = ymed(j);
+  vx_temp[ll] -= dtOVERrhom*(omega**2 * radius**2 *B* (LAMBDA-1) )/(2*M_PI);
 #endif
 
 #ifdef MHD

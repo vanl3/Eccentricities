@@ -50,12 +50,12 @@ void StockholmBoundary_cpu(real dt) {
   real* vz  = Vz->field_cpu;
   real* vz0 = Vz0->field_cpu;
 #endif
-#ifdef ADIABATIC
+#ifdef ADIABATIC   ///Energy
   real* e    = Energy->field_cpu;
   real* e0   = Energy0->field_cpu;
 #endif
-  int pitch   = Pitch_cpu;
-  int stride  = Stride_cpu;
+  int pitch   = Pitch_cpu;    // pitch = NX       ////azimuthal
+  int stride  = Stride_cpu;   //// stride = NY      ////radius
   int size_x  = Nx+2*NGHX;
   int size_y  = Ny+2*NGHY;
   int size_z  = Nz+2*NGHZ;
@@ -67,8 +67,8 @@ void StockholmBoundary_cpu(real dt) {
   real dampingzone = DAMPINGZONE;
   real kbcol = KILLINGBCCOLATITUDE;
   real of    = OMEGAFRAME;
-  real of0   = OMEGAFRAME0;
-  real r0 = R0;
+  real of0   = OMEGAFRAME0;   ///in time and defaud radius r=r_0=1, t=0
+  real r0 = R0;     ///radius where OMEGAFRAME
   real ds = TAUDAMP;
   int periodic_z = PERIODICZ;
   int fluidtype = Fluidtype;
@@ -83,7 +83,7 @@ void StockholmBoundary_cpu(real dt) {
   real Y_sup = y_max*pow(dampingzone,-2.0/3.0);
   real Z_inf = z_min - (z_max-z_min); // Here we push Z_inf & Z_sup
   real Z_sup = z_max + (z_max-z_min); // out of the mesh
-#ifdef CYLINDRICAL
+#ifdef CYLINDRICAL                              ///is z radius????????????????/
   Z_inf = z_min + (z_max-z_min)*0.1;
   Z_sup = z_max - (z_max-z_min)*0.1;
   if (periodic_z) { // Push Z_inf & Z_sup out of mesh if periodic in Z
@@ -127,10 +127,10 @@ void StockholmBoundary_cpu(real dt) {
       for (i=0; i<size_x; i++) {
 #endif
 //<#>
-	rampy = 0.0;
+	rampy = 0.0;         ///what is ramp?
 	rampz = 0.0;
 	rampzz = 0.0;
-#ifdef Y
+#ifdef Y                          /// BCs is for RADIUSsss (comfirmed).............
 	if(ymed(j) > Y_sup) {
 	  rampy   = (ymed(j)-Y_sup)/(y_max-Y_sup);
 	}
@@ -139,8 +139,8 @@ void StockholmBoundary_cpu(real dt) {
 	}
 	rampy *= rampy;		/* Parabolic ramp as in De Val Borro et al (2006) */
 #endif
-#ifdef Z
-	if(zmed(k) > Z_sup) {
+#ifdef Z                         /// does it matter if Y is radius or Z is radius? why Z has more conditions than Y?
+	if(zmed(k) > Z_sup) {          /// is this the BC for radius?
 	  rampz   = (zmed(k)-Z_sup)/(z_max-Z_sup);
 	}
 	if(zmed(k) < Z_inf) {
@@ -159,27 +159,27 @@ void StockholmBoundary_cpu(real dt) {
 	  rampz = 0.0;
 	  rampzz = 0.0;
 	}
-	ramp = rampy+rampz;
-	rampi= rampy+rampzz;
-	tau = ds*sqrt(ymed(j)*ymed(j)*ymed(j)/G/MSTAR);
+	ramp = rampy+rampz;              ///dont understand this...
+	rampi= rampy+rampzz;             ///what is this for?
+	tau = ds*sqrt(ymed(j)*ymed(j)*ymed(j)/G/MSTAR);      ///what is tau and taud?, ds is some fraction of radius
 	if(ramp>0.0) {
 //	  if(fluidtype == GAS) {
 	  if((fluidtype == GAS) || (ymed(j) > Y_sup)) {
 	  taud = tau/ramp;
-	  rho[l] = (rho[l]*taud+rho0[l2D]*dt)/(dt+taud);
+	  rho[l] = (rho[l]*taud+rho0[l2D]*dt)/(dt+taud);     ///where can we find 12D? A:take away the avg of intitial conditions, want to go back to ori condi
 #ifdef X
 	  vx0_target = vx0[l2D];
 	  radius = ymed(j);
 #ifdef SPHERICAL
 	  radius *= sin(zmed(k));
-#endif
-	  vx0_target -= (of-of0)*radius;
-	  vx[l] = (vx[l]*taud+vx0_target*dt)/(dt+taud);
+#endif              /// damping alot near the Boundaries and lesss as we go further
+	  vx0_target -= (of-of0)*radius;               ///what id of and of0?
+	  vx[l] = (vx[l]*taud+vx0_target*dt)/(dt+taud);      ///dont understand this
 #endif
 #ifdef Y
 	  vy[l] = (vy[l]*taud+vy0[l2D]*dt)/(dt+taud);
 #endif
-#ifdef ADIABATIC
+#ifdef ADIABATIC                                  /// what is Adiabatic?
           e[l] = rho[l]*(e[l]/rho[l]*taud+e0[l2D]/rho0[l2D]*dt)/(dt+taud); // damp the temperature
 #endif
           }

@@ -54,7 +54,7 @@ void StockholmBoundary_cpu(real dt) {
   real* e    = Energy->field_cpu;
   real* e0   = Energy0->field_cpu;
 #endif
-  int pitch   = Pitch_cpu;
+  int pitch   = Pitch_cpu;    ///array
   int stride  = Stride_cpu;
   int size_x  = Nx+2*NGHX;
   int size_y  = Ny+2*NGHY;
@@ -131,7 +131,7 @@ void StockholmBoundary_cpu(real dt) {
 	rampzz = 0.0;
 #ifdef Y
 	if(ymed(j) > Y_sup) {
-	  rampy   = (ymed(j)-Y_sup)/(y_max-Y_sup);
+	  rampy   = (ymed(j)-Y_sup)/(y_max-Y_sup);     ///BC for radius
 	}
 	if(ymed(j) < Y_inf) {
 	  rampy   = (Y_inf-ymed(j))/(Y_inf-y_min);
@@ -140,7 +140,7 @@ void StockholmBoundary_cpu(real dt) {
 #endif
 #ifdef Z
 	if(zmed(k) > Z_sup) {
-	  rampz   = (zmed(k)-Z_sup)/(z_max-Z_sup);
+	  rampz   = (zmed(k)-Z_sup)/(z_max-Z_sup);     ///BC for damping zone
 	}
 	if(zmed(k) < Z_inf) {
 	  rampz   = (Z_inf-zmed(k))/(Z_inf-z_min);
@@ -154,33 +154,33 @@ void StockholmBoundary_cpu(real dt) {
 	}
 	rampzz= rampzz * rampzz;		/* vertical ramp in X^2 */
 #endif
-	if (periodic_z) {
+	if (periodic_z) {      ///usually periodic in x but not z
 	  rampz = 0.0;
 	  rampzz = 0.0;
 	}
 	ramp = rampy+rampz;
 	rampi= rampy+rampzz;
-	tau = ds*sqrt(ymed(j)*ymed(j)*ymed(j)/G/MSTAR);
-	if(ramp>0.0) {
-	  taud = tau/ramp;
-	  rho[l] = (rho[l]*taud+rho0[l2D]*dt)/(dt+taud);
-#ifdef X
+	tau = ds*sqrt(ymed(j)*ymed(j)*ymed(j)/G/MSTAR);    ///fraction of the period  or time, since ds always less than 1
+	if(ramp>0.0) {                                     ///if ramp big then taud small, or change TAUDAMP smaller to be easier like 1e-7
+	  taud = tau/ramp;                                 ///change ramp to get dt>taud
+	  rho[l] = (rho[l]*taud+rho0[l2D]*dt)/(dt+taud);   ////rate of the ratio matters, weighted average, which is dt+taud, rho and rho0 are indexes
+#ifdef X                                            ///you can chose dt or taud is bigger, if taud >dt, then rho is weighted more, if dont wanna change density, then dt is bigger
 	  vx0_target = vx0[l2D];
 	  radius = ymed(j);
 #ifdef SPHERICAL
 	  radius *= sin(zmed(k));
 #endif
 	  vx0_target -= (of-of0)*radius;
-	  vx[l] = (vx[l]*taud+vx0_target*dt)/(dt+taud);
+	  vx[l] = (vx[l]*taud+vx0_target*dt)/(dt+taud);      ///phi: azimuthal direction
 #endif
 #ifdef Y
-	  vy[l] = (vy[l]*taud+vy0[l2D]*dt)/(dt+taud);
+	  vy[l] = (vy[l]*taud+vy0[l2D]*dt)/(dt+taud);      ///current radius velocity
 #endif
 	}
 #ifdef Z
 	if(rampi>0.0) {
 	  taud = tau/rampi;
-	  vz[l] = (vz[l]*taud+vz0[l2D]*dt)/(dt+taud);
+	  vz[l] = (vz[l]*taud+vz0[l2D]*dt)/(dt+taud);    ///theta velocity
 	}
 #endif
 //<\#>
